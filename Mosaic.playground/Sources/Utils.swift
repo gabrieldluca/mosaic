@@ -1,3 +1,4 @@
+import AVFoundation
 import UIKit
 import SceneKit
 
@@ -36,43 +37,30 @@ public func setLine(point: CGPoint) -> CGPath {
     return bezier.cgPath
 }
 
-/**
- Places a camera in the respective scene.
- 
- - Parameter toScene: The desired scene object to place the camera to.
- 
- - returns: SCNNode
- */
-public func placeCamera(toScene: SCNScene) -> SCNNode {
-    let cameraNode = SCNNode()
-    cameraNode.camera = SCNCamera()
-    toScene.rootNode.addChildNode(cameraNode)
-    return cameraNode
+// MARK: - SceneKit Helpers
+
+public func addEmmiterNode(toScene: SCNScene, withParticle: SCNParticleSystem?, inFrontOf: SCNNode) {
+    let particleEmitter = SCNNode()
+    if let particles = withParticle {
+        particleEmitter.addParticleSystem(particles)
+    }
+    
+    toScene.rootNode.addChildNode(particleEmitter)
+    let position = SCNVector3(x: 0, y: 0, z: 3)
+    updatePositionAndOrientationOf(particleEmitter, withPosition: position, relativeTo: inFrontOf)
 }
 
-/**
- Add an omni light to the respective scene.
- 
- - Parameter toScene: The desired scene object to add the light to.
- */
-public func addLight(toScene: SCNScene) {
-    let lightNode = SCNNode()
-    lightNode.light = SCNLight()
-    lightNode.light!.type = .omni
-    toScene.rootNode.addChildNode(lightNode)
-}
-
-/**
- Add a dark-gray ambient light to the respective scene.
- 
- - Parameter toScene: The desired scene object to add the ambient light to.
- */
-public func addAmbientLight(toScene: SCNScene) {
-    let ambientLightNode = SCNNode()
-    ambientLightNode.light = SCNLight()
-    ambientLightNode.light!.type = .ambient
-    ambientLightNode.light!.color = UIColor.darkGray
-    toScene.rootNode.addChildNode(ambientLightNode)
+public func setupScene(_ scene: SCNScene, withView: SCNView) {
+    withView.frame = CGRect(x:0, y:0, width:550, height:450)
+    withView.allowsCameraControl = false
+    withView.backgroundColor = UIColor(red:0.11, green:0.11, blue:0.14, alpha:1.0)
+    
+    let camera = scene.placeCamera()
+    scene.addLight()
+    scene.addAmbientLight()
+    
+    let stars = SCNParticleSystem(named: "Particle Systems/starry-night.scnp", inDirectory: nil)
+    addEmmiterNode(toScene: scene, withParticle: stars, inFrontOf: camera)
 }
 
 public func updatePositionAndOrientationOf(_ node: SCNNode, withPosition position: SCNVector3, relativeTo referenceNode: SCNNode) {
@@ -87,4 +75,22 @@ public func updatePositionAndOrientationOf(_ node: SCNNode, withPosition positio
     // Combine the configured translation matrix with the referenceNode's transform to get the desired position AND orientation
     let updatedTransform = matrix_multiply(referenceNodeTransform, translationMatrix)
     node.transform = SCNMatrix4(updatedTransform)
+}
+
+// MARK: - Speech To Text
+public func synthesizeSpeech(forString: String, whilePlaying: AVAudioPlayer) {
+    let speechSynthesizer = AVSpeechSynthesizer()
+    let speechUtterance: AVSpeechUtterance = AVSpeechUtterance(string: forString)
+    speechUtterance.rate = 0.5
+    speechUtterance.voice = AVSpeechSynthesisVoice(identifier: "com.apple.ttsbundle.Daniel-compact")
+    speechUtterance.pitchMultiplier = 1.5
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 3.0, execute: {
+        whilePlaying.volume = 0.25
+        speechSynthesizer.speak(speechUtterance)
+    })
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: {
+        whilePlaying.volume = 1
+    })
 }
