@@ -1,37 +1,3 @@
-//
-//  MovableView.swift
-//  MovableView
-//
-//  Created by Gabriel D'Luca on 15/03/19.
-//  Copyright © 2019 Gabriel D'Luca. All rights reserved.
-//
-//
-//  The MIT License
-
-/*
- The MIT License (MIT)
- 
- Copyright (c) 2019 Gabriel D'Luca
- 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
- 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
- */
-
 import UIKit
 
 class MovableView: UIImageView {
@@ -40,7 +6,7 @@ class MovableView: UIImageView {
     private var isMoving:Bool = false
     public var objectiveVertex:CGPoint = CGPoint.zero
     public var objectiveCenter:CGPoint = CGPoint.zero
-    weak var levelDelegate:MergeLevelDelegate?
+    weak var levelDelegate:LevelDelegate?
     
     // MARK: - Initializers
     
@@ -78,7 +44,7 @@ class MovableView: UIImageView {
         let deltaX = self.objectiveCenter.x - self.center.x
         let deltaY = self.objectiveCenter.y - self.center.y
         
-        if abs(deltaX) <= 10 && abs(deltaY) <= 10 {
+        if abs(deltaX) <= 15 && abs(deltaY) <= 15 {
             UIView.animate(withDuration: 0.25, animations: {
                 self.center = self.objectiveCenter
             })

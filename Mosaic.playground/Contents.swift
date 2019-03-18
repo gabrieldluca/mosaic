@@ -1,6 +1,6 @@
 /*:
  # Mosaic
- ![Playground Icon](Assets/logo.png width="275" height="249")
+ ![Playground Icon](Images/logo.png width="275" height="249")
  
  Mosaic is an interactive Swift playground that portrays the relationship between isometric shapes and visual perception. You may build and interact with it in the latest release of XCode.
  
@@ -12,10 +12,8 @@
  * **AVFoundation:** Lorem Ipsum dolor sit amet.
  */
 
-import UIKit
 import PlaygroundSupport
 import AVFoundation
-import SceneKit
 
 var player:AVAudioPlayer = AVAudioPlayer()
 do {

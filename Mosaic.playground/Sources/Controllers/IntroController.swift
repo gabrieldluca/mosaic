@@ -9,13 +9,13 @@ public class IntroController: UIViewController {
     private let sceneView:SCNView = SCNView()
     private let pulsator:Pulsator = Pulsator()
     
-    // MARK: - Assets variables
+    // MARK: - Asset variables
     
     private let images = [
-        UIImage(named: "Assets/Pieces/Intro/piece-0.png"),
-        UIImage(named: "Assets/Pieces/Intro/piece-1.png"),
-        UIImage(named: "Assets/Pieces/Intro/piece-2.png"),
-        UIImage(named: "Assets/Pieces/Intro/piece-3.png")
+        UIImage(named: "Images/Pieces/Intro/piece-0.png"),
+        UIImage(named: "Images/Pieces/Intro/piece-1.png"),
+        UIImage(named: "Images/Pieces/Intro/piece-2.png"),
+        UIImage(named: "Images/Pieces/Intro/piece-3.png")
     ]
     private let frames = [
         CGRect(x: 50, y: 75, width: 55, height: 54),
@@ -25,9 +25,10 @@ public class IntroController: UIViewController {
     ]
     private var introductionViews:[UIView] = []
     
-    // MARK: - Lifecycle methods
+    // MARK: - ViewController lifecycle methods
     
     override public func viewDidLoad() {
+        
         sceneView.scene = self.scene
         self.view.addSubview(self.sceneView)
         
@@ -44,7 +45,7 @@ public class IntroController: UIViewController {
         
         // MARK: Add acknowledgments button
         let creditsButton = UIButton(frame: CGRect(x: 275, y: 350, width: 25, height: 19.92))
-        creditsButton.setBackgroundImage(UIImage(named: "Assets/Pieces/Intro/piece-4.png"), for: .normal)
+        creditsButton.setBackgroundImage(UIImage(named: "Images/Pieces/Intro/piece-4.png"), for: .normal)
         self.view.addSubview(creditsButton)
         self.addPulse(toLayer: creditsButton.layer)
         self.introductionViews.append(creditsButton)
@@ -53,7 +54,7 @@ public class IntroController: UIViewController {
         super.viewDidLoad()
     }
     
-    // MARK: - Particle Systems
+    // MARK: - Particle Systems methods
     
     private func addEmmiterNode(forParticle: SCNParticleSystem?, inFrontOf: SCNNode) {
         let particleEmitter = SCNNode()
@@ -66,7 +67,7 @@ public class IntroController: UIViewController {
         updatePositionAndOrientationOf(particleEmitter, withPosition: position, relativeTo: inFrontOf)
     }
     
-    // MARK: - Animations
+    // MARK: - Animation methods
     
     private func addPulse(toLayer: CALayer) {
         toLayer.superlayer?.insertSublayer(self.pulsator, below: toLayer)
@@ -87,7 +88,7 @@ public class IntroController: UIViewController {
         }
     }
     
-    // MARK: - Start Button
+    // MARK: - Others
     
     private func setStartButton() {
         let button = UIButton(frame: CGRect(x: 200, y: 175, width: 175, height: 65))
@@ -124,3 +125,4 @@ public class IntroController: UIViewController {
         })
     }
 }
+
