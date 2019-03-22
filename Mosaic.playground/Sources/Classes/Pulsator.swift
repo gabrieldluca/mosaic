@@ -5,7 +5,7 @@
 //  Created by Shuichi Tsutsumi on 4/9/16.
 //  Copyright © 2016 Shuichi Tsutsumi. All rights reserved.
 //
-//
+//  Source: https://github.com/shu223/Pulsator (MIT)
 //  Objective-C version: https://github.com/shu223/PulsingHalo
 
 /*

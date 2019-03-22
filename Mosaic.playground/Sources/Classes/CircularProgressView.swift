@@ -2,12 +2,16 @@ import UIKit
 
 class CircularProgressView: UIView {
     
+    // MARK: - Variables
+    
     var endAngle:CGFloat = CGFloat(0.0) {
         didSet {
             self.createArc()
             self.setNeedsDisplay()
         }
     }
+    
+    // MARK: - Initializers
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -16,6 +20,8 @@ class CircularProgressView: UIView {
     required public init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
+    
+    // MARK: - Methods
     
     private func createArc() {
         // MARK: Removing sublayers
