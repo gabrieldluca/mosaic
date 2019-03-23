@@ -30,9 +30,8 @@ do {
 
 player.numberOfLoops = -1
 player.prepareToPlay()
-//player.play()
+player.play()
 
 let viewController = IntroController()
 viewController.preferredContentSize = CGSize(width: 550, height: 450)
-viewController.backgroundPlayer = player
 PlaygroundPage.current.liveView = viewController

@@ -4,16 +4,25 @@ import SceneKit
 
 public class PerspectiveController: UIViewController, LevelDelegate {
     
-    // MARK: - Variables
+    // MARK: - Scene properties
     
     internal let scene:SCNScene = SCNScene()
     internal let sceneView:SCNView = SCNView()
     internal var progressPercentage:Double = 0
+    internal let pulsator:Pulsator = Pulsator()
+    internal var interfaceButtons:[UIButton] = []
+    internal var headerDescription:UILabel = UILabel()
+    
+    // MARK: - Level-specific properties
+    
+    internal var objective:UIImageView = UIImageView()
     internal var levelPieces:[MovableView] = []
     private var progressViews:[CircularProgressView] = []
     private var didFitOnePiece:Bool = false
+    private var fittedPiece:MovableView? = nil
+    private var isColorizeEnabled:Bool = false
     
-    // MARK: - Assets
+    // MARK: - Image Assets
     
     internal let images:[UIImage?] = [
         UIImage(named: "Images/Pieces/Depth/piece-0.png"),
@@ -28,10 +37,12 @@ public class PerspectiveController: UIViewController, LevelDelegate {
         CGRect(x: 50, y: 225, width: 88.86, height: 100)
     ]
     
-    // MARK: - Sound Effects
+    // MARK: - SFX Assets
     
-    internal var switchPlayer:AVAudioPlayer = AVAudioPlayer()
     internal var rotatePlayer:AVAudioPlayer = AVAudioPlayer()
+    internal var scalePlayer:AVAudioPlayer = AVAudioPlayer()
+    internal var switchPlayer:AVAudioPlayer = AVAudioPlayer()
+    internal var viewPlayer:AVAudioPlayer = AVAudioPlayer()
     
     // MARK: - ViewController Lifecycle methods
     
@@ -41,26 +52,37 @@ public class PerspectiveController: UIViewController, LevelDelegate {
         
         setupScene(self.scene, withView: self.sceneView)
         self.levelSetup()
+        self.addInterfaceButtons()
+        self.isColorizeEnabled = true
         
         do {
             /*
-             "Light Switch" by GOSFX; "Whip 01" by erkanozans
+             "Light Switch" by GOSFX; "Whip 01" by erkanozans; "Dramatic Camera Zoom" by sanaku; "whoosh.wav" by LloydEvans09.
              
-             Source(s): https://freesound.org/people/GOSFX/sounds/324334/ (CC BY 3.0) & https://freesound.org/people/erkanozan/sounds/51755/ (CC0 1.0)
+             Source(s): https://freesound.org/people/GOSFX/sounds/324334/ (CC BY 3.0), https://freesound.org/people/erkanozan/sounds/51755/ (CC0 1.0) & https://freesound.org/people/sanaku/sounds/371882/ (CC0 1.0)
              */
-            let switchAudioPath = Bundle.main.path(forResource: "Sound/light-switch", ofType: "mp3")
             let rotateAudioPath = Bundle.main.path(forResource: "Sound/whip", ofType: "wav")
+            let scaleAudioPath = Bundle.main.path(forResource: "Sound/scale", ofType: "wav")
+            let switchAudioPath = Bundle.main.path(forResource: "Sound/light-switch", ofType: "mp3")
+            let viewAudioPath = Bundle.main.path(forResource: "Sound/view", ofType: "mp3")
             
-            try self.switchPlayer = AVAudioPlayer(contentsOf: NSURL(fileURLWithPath: switchAudioPath!) as URL)
+            
             try self.rotatePlayer = AVAudioPlayer(contentsOf: NSURL(fileURLWithPath: rotateAudioPath!) as URL)
+            try self.scalePlayer = AVAudioPlayer(contentsOf: NSURL(fileURLWithPath: scaleAudioPath!) as URL)
+            try self.switchPlayer = AVAudioPlayer(contentsOf: NSURL(fileURLWithPath: switchAudioPath!) as URL)
+            try self.viewPlayer = AVAudioPlayer(contentsOf: NSURL(fileURLWithPath: viewAudioPath!) as URL)
         } catch {
             print("Couldn't find background music file.")
         }
         
-        self.switchPlayer.volume = 1.5
         self.rotatePlayer.volume = 0.3
-        self.switchPlayer.prepareToPlay()
+        self.scalePlayer.volume = 0.3
+        self.switchPlayer.volume = 1.5
+        
         self.rotatePlayer.prepareToPlay()
+        self.scalePlayer.prepareToPlay()
+        self.switchPlayer.prepareToPlay()
+        self.viewPlayer.prepareToPlay()
         
         super.viewDidLoad()
     }
@@ -68,34 +90,36 @@ public class PerspectiveController: UIViewController, LevelDelegate {
     // MARK: - Level Delegate methods
     
     internal func levelSetup() {
-        self.updateProgress(withValue: 0.5)
-        
         // MARK: Adding objective description
         addHeader(toView: self.view)
-        let _ = addDescription(toView: self.view, withText: "The position from which something is observed.")
+        self.headerDescription = addDescription(toView: self.view, withText: "The position from which something is observed.")
         addLevelNumber(toView: self.view, withText: "3")
         
         // MARK: Adding objective shape
-        let objective = UIImageView(image: UIImage(named:"Images/Pieces/Perspective/objective.png"))
-        objective.frame = CGRect(x: 230, y: 225, width: 88.92, height: 100)
-        self.view.addSubview(objective)
+        self.objective = UIImageView(image: UIImage(named:"Images/Pieces/Perspective/objective.png"))
+        self.objective.frame = CGRect(x: 230, y: 225, width: 88.92, height: 100)
+        self.view.addSubview(self.objective)
         
         // MARK: Adding pieces
-        for imageInfo in zip(self.images, self.frames) {
-            let piece = MovableView(image: imageInfo.0!)
+        for imageInfo in zip(self.coloredImages, self.frames) {
+            let piece = MovableView(image: self.coloredImages[0]!)
             piece.frame = imageInfo.1
             piece.currentSize = 0
             
             // MARK: Configuring objective
             if imageInfo.0 == self.images[0] {
-                piece.objectiveVertex = CGPoint(x: objective.frame.maxX, y: objective.frame.minY)
-                piece.objectiveCenter = CGPoint(x: objective.center.x, y: objective.center.y)
+                piece.objectiveVertex = CGPoint(x: self.objective.frame.maxX,
+                                                y: self.objective.frame.minY)
+                piece.objectiveCenter = CGPoint(x: self.objective.center.x,
+                                                y: self.objective.center.y)
                 piece.objectiveAngle = 1
                 piece.currentAngle = 1
                 piece.transform = CGAffineTransform(rotationAngle: CGFloat.pi)
             } else {
-                piece.objectiveVertex = CGPoint(x: objective.frame.minX, y: objective.frame.maxY)
-                piece.objectiveCenter = CGPoint(x: objective.center.x, y: objective.center.y-2.5)
+                piece.objectiveVertex = CGPoint(x: self.objective.frame.minX,
+                                                y: self.objective.frame.maxY)
+                piece.objectiveCenter = CGPoint(x: self.objective.center.x,
+                                                y: self.objective.center.y)
                 piece.objectiveAngle = 1
                 piece.currentAngle = 3
                 piece.transform = CGAffineTransform(rotationAngle: CGFloat.pi * 2.0)
@@ -105,29 +129,86 @@ public class PerspectiveController: UIViewController, LevelDelegate {
             self.levelPieces.append(piece)
             self.view.addSubview(piece)
         }
-        
-        let colorizeButton = addToolButton(withImageNamed: "Images/Icons/colorize.png", andInsets: UIEdgeInsets(top: 10, left: 11.21, bottom: 10, right: 11.21), toX: 220.0)
-        colorizeButton.addTarget(self, action: #selector(self.didPressColorize(_:)), for: .touchUpInside)
-        self.view.addSubview(colorizeButton)
-        
-        let rotateButton = addToolButton(withImageNamed: "Images/Icons/rotate.png", andInsets: UIEdgeInsets(top: 11, left: 12, bottom: 11, right: 12), toX: 280.0)
-        rotateButton.addTarget(self, action: #selector(self.didPressRotate(_:)), for: .touchUpInside)
-        self.view.addSubview(rotateButton)
-        
-        let scaleButton = addToolButton(withImageNamed: "Images/Icons/scale.png", andInsets: UIEdgeInsets(top: 14, left: 11, bottom: 14, right: 11), toX: 340.0)
-        scaleButton.addTarget(self, action: #selector(self.didPressScale(_:)), for: .touchUpInside)
-        self.view.addSubview(scaleButton)
     }
     
     internal func levelTeardown() {
-        // MARK: Present next level
+        for button in self.interfaceButtons {
+            UIView.animate(withDuration: 1.0, animations: {
+                button.alpha = 0
+            }, completion: { (success: Bool) in
+                button.removeFromSuperview()
+            })
+        }
+        UIView.animate(withDuration: 1.0, animations: {
+            self.pulsator.radius = 75
+            self.addPulse(toLayer: self.objective.layer)
+        })
+        
+        UIView.animate(withDuration: 1.0, animations: {
+            self.headerDescription.alpha = 0
+        }, completion: { (success: Bool) in
+            self.headerDescription.text = "Once you've seen there is another perspective, you can never not see that there's another point of view."
+            self.headerDescription.center.y -= 20
+            self.headerDescription.font = UIFont(name: "HelveticaNeue-Italic", size: 16)
+            
+            let attribution = createReference(withAuthor: "— Ellen Langer —", relativeTo: self.headerDescription)
+            self.view.addSubview(attribution)
+            
+            // MARK: Adding next button
+            let nextButton = addToolButton(withImageNamed: "", andInsets: UIEdgeInsets(top: 16, left: 12, bottom: 16, right: 12), toX: 250)
+            nextButton.setImage(UIImage(named: "Images/Icons/next.png"), for: .normal)
+            nextButton.addTarget(self, action: #selector(self.didPressNextLevel(_:)), for: .touchUpInside)
+            nextButton.alpha = 0
+            self.view.addSubview(nextButton)
+            
+            UIView.animate(withDuration: 0.5, animations: {
+                self.headerDescription.alpha = 1
+            }, completion: { (success: Bool) in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
+                    UIView.animate(withDuration: 0.5, animations: {
+                        attribution.alpha = 1
+                    }, completion: { (success: Bool) in
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
+                            UIView.animate(withDuration: 0.5, animations: {
+                                nextButton.alpha = 1
+                            })
+                        })
+                    })
+                })
+            })
+        })
+    }
+    
+    internal func addInterfaceButtons() {
+        let viewButton = addToolButton(withImageNamed: "Images/Icons/view.png", andInsets: UIEdgeInsets(top: 10, left: 11.21, bottom: 10, right: 11.21), toX: 160.0)
+        self.interfaceButtons.append(viewButton)
+        let longPressRecognizer = UILongPressGestureRecognizer()
+        longPressRecognizer.addTarget(self, action: #selector(self.didPressView(_:)))
+        longPressRecognizer.minimumPressDuration = 0.1
+        viewButton.addGestureRecognizer(longPressRecognizer)
+        self.view.addSubview(viewButton)
+        
+        let colorizeButton = addToolButton(withImageNamed: "Images/Icons/colorize.png", andInsets: UIEdgeInsets(top: 10, left: 11.21, bottom: 10, right: 11.21), toX: 220.0)
+        colorizeButton.addTarget(self, action: #selector(self.didPressColorize(_:)), for: .touchUpInside)
+        colorizeButton.tag = 1
+        self.view.addSubview(colorizeButton)
+        self.interfaceButtons.append(colorizeButton)
+        
+        let rotateButton = addToolButton(withImageNamed: "Images/Icons/rotate.png", andInsets: UIEdgeInsets(top: 10, left: 12, bottom: 10, right: 12), toX: 280.0)
+        rotateButton.addTarget(self, action: #selector(self.didPressRotate(_:)), for: .touchUpInside)
+        self.view.addSubview(rotateButton)
+        self.interfaceButtons.append(rotateButton)
+        
+        let scaleButton = addToolButton(withImageNamed: "Images/Icons/scale.png", andInsets: UIEdgeInsets(top: 14, left: 10, bottom: 14, right: 10), toX: 340.0)
+        scaleButton.addTarget(self, action: #selector(self.didPressScale(_:)), for: .touchUpInside)
+        self.view.addSubview(scaleButton)
+        self.interfaceButtons.append(scaleButton)
     }
     
     internal func didFit(piece: MovableView) {
-        self.didFitOnePiece = true
         for levelPiece in self.levelPieces {
             // MARK: Determine the objective size for the remaining piece
-            if piece != levelPiece {
+            if piece !== levelPiece {
                 if piece.currentSize == 0 {
                     levelPiece.objectiveSize = 1
                     levelPiece.objectiveAngle = 3
@@ -135,15 +216,50 @@ public class PerspectiveController: UIViewController, LevelDelegate {
                     levelPiece.objectiveSize = 0
                     levelPiece.objectiveAngle = 1
                 }
-                if !self.didFitOnePiece && piece == self.levelPieces[0] {
+                if self.didFitOnePiece == false && levelPiece == self.levelPieces[0] {
                     self.view.bringSubviewToFront(levelPiece)
                 }
             }
         }
-        self.updateProgress(withValue: (0.25))
+        if self.didFitOnePiece == false && piece.currentSize == 1 {
+            self.view.bringSubviewToFront(piece)
+        }
+        
+        self.didFitOnePiece = true
+        self.fittedPiece = piece
+        self.updateProgress(withValue: 0.25)
+    }
+    
+    private func addPulse(toLayer: CALayer) {
+        toLayer.superlayer?.insertSublayer(self.pulsator, below: toLayer)
+        self.pulsator.position = toLayer.position
+        self.pulsator.numPulse = 3
+        self.pulsator.backgroundColor = UIColor(red:0.64, green:0.62, blue:0.88, alpha:0.5).cgColor
+        self.pulsator.start()
     }
     
     // MARK: - Button interaction methods
+    
+    @objc private func didPressView(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == UIGestureRecognizer.State.began {
+            self.viewPlayer.play()
+            self.objective.alpha = 0
+            self.view.bringSubviewToFront(self.objective)
+            UIView.animate(withDuration: 0.25, animations: {
+                self.objective.alpha = 1
+            })
+        }
+        if gesture.state == UIGestureRecognizer.State.ended {
+            UIView.animate(withDuration: 0.25, animations: {
+                self.objective.alpha = 0
+            })
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25, execute: {
+                self.view.sendSubviewToBack(self.objective)
+                self.view.sendSubviewToBack(self.sceneView)
+                self.objective.alpha = 1
+            })
+        }
+    }
     
     @objc private func didPressColorize(_ sender: UIButton) {
         sender.isUserInteractionEnabled = false
@@ -153,10 +269,12 @@ public class PerspectiveController: UIViewController, LevelDelegate {
             imagesToColor = self.coloredImages
             sender.tag = 1
             sender.setImage(UIImage(named: "Images/Icons/colorize-remove.png"), for: .normal)
+            self.isColorizeEnabled = true
         } else {
             imagesToColor = self.images
             sender.tag = 0
             sender.setImage(UIImage(named: "Images/Icons/colorize.png"), for: .normal)
+            self.isColorizeEnabled = false
         }
         
         if sender.tag == 1 {
@@ -166,14 +284,14 @@ public class PerspectiveController: UIViewController, LevelDelegate {
         }
         
         self.switchPlayer.play()
-        for piece in zip(self.levelPieces, imagesToColor) {
+        for piece in self.levelPieces {
             UIView.animate(withDuration: 0.5, animations: {
-                piece.0.alpha = 0
+                piece.alpha = 0
             })
-            piece.0.image = piece.1
+            piece.image = imagesToColor[piece.currentSize]
             UIView.animate(withDuration: 0.5, animations: {
-                piece.0.alpha = 1
-            }, completion: { (sucess: Bool) in
+                piece.alpha = 1
+            }, completion: { (success: Bool) in
                 sender.isUserInteractionEnabled = true
             })
         }
@@ -203,8 +321,9 @@ public class PerspectiveController: UIViewController, LevelDelegate {
     }
     
     @objc private func didPressScale(_ sender: UIButton) {
-        sender.isUserInteractionEnabled = false
-        // PLAY SOUND EFFECT
+        sender.isEnabled = false
+        self.scalePlayer.play()
+        
         for piece in self.levelPieces {
             let nextSize:Int
             if piece.currentSize == 1 {
@@ -216,25 +335,63 @@ public class PerspectiveController: UIViewController, LevelDelegate {
             UIView.animate(withDuration: 0.25, animations: {
                 if piece.isUserInteractionEnabled {
                     if piece.currentSize == 0 {
+                        piece.objectiveCenter.y -= 2.5
                         piece.frame = CGRect(x: piece.frame.minX, y: piece.frame.minY, width: piece.frame.width/2.127, height: piece.frame.height/2.12855)
+                        if self.isColorizeEnabled {
+                            UIView.animate(withDuration: 0.5, animations: {
+                                piece.alpha = 0
+                            })
+                            piece.image = self.coloredImages[nextSize]
+                            UIView.animate(withDuration: 0.5, animations: {
+                                piece.alpha = 1
+                            })
+                        }
                     } else {
+                        piece.objectiveCenter.y += 2.5
                         piece.frame = CGRect(x: piece.frame.minX, y: piece.frame.minY, width: piece.frame.width*2.127, height: piece.frame.height*2.12855)
+                        if self.isColorizeEnabled {
+                            UIView.animate(withDuration: 0.5, animations: {
+                                piece.alpha = 0
+                            })
+                            piece.image = self.coloredImages[nextSize]
+                            UIView.animate(withDuration: 0.5, animations: {
+                                piece.alpha = 1
+                            })
+                        }
                     }
                 }
             }, completion: { (success: Bool) in
-                sender.isUserInteractionEnabled = true
-                piece.currentSize = nextSize
-                if self.didFitOnePiece == false {
+                // MARK: Update the current size
+                if self.didFitOnePiece == true {
+                    if let fitted = self.fittedPiece {
+                        if piece != fitted {
+                            piece.currentSize = nextSize
+                        }
+                    }
+                } else {
+                    piece.currentSize = nextSize
+                    
+                    // MARK: Change objective angle accordingly
                     if piece.objectiveAngle == 3 {
-                        piece.objectiveAngle = 3
-                    } else {
                         piece.objectiveAngle = 1
+                    } else {
+                        piece.objectiveAngle = 3
                     }
                 }
             })
+            
+            // MARK: Re-enabling the button
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                sender.isEnabled = true
+            })
         }
     }
-
+    
+    @objc private func didPressNextLevel(_ sender: UIButton) {
+        let connection = EndingController()
+        connection.preferredContentSize = CGSize(width:550, height:450)
+        self.present(connection, animated: true)
+    }
     
     // MARK: - Progress update methods
     

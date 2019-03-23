@@ -30,8 +30,7 @@ public class IntroController: UIViewController {
     
     // MARK: - ViewController lifecycle methods
     
-    override public func viewDidLoad() {
-        
+    override public func viewDidLoad() {        
         sceneView.scene = self.scene
         self.view.addSubview(self.sceneView)
         

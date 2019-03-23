@@ -101,6 +101,7 @@ class MovableView: UIImageView {
                 self.center = self.origin
             })
             self.wrongEffect.play()
+            self.objectiveSize = -1
         }
     }
 }

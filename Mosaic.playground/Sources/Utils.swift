@@ -2,14 +2,18 @@ import AVFoundation
 import SceneKit
 import UIKit
 
-public func addQuote(text: String, toView: UIView, color: UIColor, frame: CGRect) -> UILabel {
-    let quote = UILabel()
-    quote.text = text
-    quote.textColor = color
-    quote.frame = frame
+public func createReference(withAuthor: String, relativeTo: UILabel) -> UILabel {
+    let quote = UILabel(frame: CGRect(x: relativeTo.frame.minX, y: relativeTo.frame.midY - 15, width: relativeTo.frame.width, height: relativeTo.frame.height))
+    quote.text = withAuthor
+    quote.font = UIFont(name: "HelveticaNeue-Bold", size: 14)
+    quote.textColor = UIColor.white
+    quote.textAlignment = .center
     quote.alpha = 0
-    quote.font = UIFont(name: "HelveticaNeue-Thin", size: CGFloat(25.0))
-    toView.addSubview(quote)
+    
+    if withAuthor == "— Ellen Langer —" {
+        quote.transform = CGAffineTransform.init(translationX: 0, y: 9.0)
+    }
+    
     return quote
 }
 
@@ -40,7 +44,7 @@ public func addDescription(toView: UIView, withText: String) -> UILabel {
     
     text.textAlignment = NSTextAlignment.center
     text.textColor = UIColor.white
-    text.numberOfLines = 2
+    text.numberOfLines = 4
     text.lineBreakMode = NSLineBreakMode.byTruncatingTail
     
     toView.addSubview(text)
@@ -62,25 +66,6 @@ public func addLevelNumber(toView: UIView, withText: String) {
     toView.addSubview(number)
 }
 
-public func addNextButton(toView: UIView) -> UIButton {
-    let nextButton = UIButton()
-    //number.text = withText
-    nextButton.frame = CGRect(x: 260, y: 130, width: 35, height: 35)
-    nextButton.setImage(UIImage(named: "Images/Icons/next.png"), for: .normal)
-    nextButton.imageEdgeInsets = UIEdgeInsets(top: 7.5, left: 9.5, bottom: 7.5, right: 9.5)
-    
-    //number.textAlignment = NSTextAlignment.center
-    //number.textColor = UIColor.white
-    nextButton.setBackgroundColor(color: UIColor(red:0.64, green:0.62, blue:0.88, alpha:0.5), forState: .normal)
-    nextButton.setBackgroundColor(color: UIColor(red:0.21, green:0.20, blue:0.28, alpha:0.3), forState: .selected)
-    
-    nextButton.layer.cornerRadius = nextButton.frame.height/2
-    nextButton.layer.masksToBounds = true
-    
-    toView.addSubview(nextButton)
-    return nextButton
-}
-
 // MARK: - Interface button methods
 
 public func addToolButton(withImageNamed: String, andInsets: UIEdgeInsets, toX: Double) -> UIButton {
@@ -92,8 +77,7 @@ public func addToolButton(withImageNamed: String, andInsets: UIEdgeInsets, toX: 
     
     toolButton.layer.cornerRadius = toolButton.frame.height/2
     toolButton.layer.masksToBounds = true
-    toolButton.imageEdgeInsets = andInsets // UIEdgeInsets(top: 10, left: 11.21, bottom: 10, right: 11.21)
-    // UIEdgeInsets(top: 10, left: 12, bottom: 10, right: 12)
+    toolButton.imageEdgeInsets = andInsets
     
     return toolButton
 }
