@@ -86,6 +86,7 @@ class MovableView: UIImageView {
         let deltaX = self.objectiveCenter.x - self.center.x
         let deltaY = self.objectiveCenter.y - self.center.y
         
+        let previousObjective:Int = self.objectiveSize
         if self.objectiveSize == -1 {
             self.objectiveSize = self.currentSize
         }
@@ -104,7 +105,10 @@ class MovableView: UIImageView {
                 self.center = self.origin
             })
             self.wrongEffect.play()
-            self.objectiveSize = -1
+            
+            if previousObjective == -1 {
+                self.objectiveSize = previousObjective
+            }
         }
     }
 }

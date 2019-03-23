@@ -258,11 +258,9 @@ public class MergeController: UIViewController, LevelDelegate {
         if sender.tag == 0 {
             imagesToColor = self.coloredImages
             sender.tag = 1
-            sender.setImage(UIImage(named: "Images/Icons/colorize-remove.png"), for: .normal)
         } else {
             imagesToColor = self.images
             sender.tag = 0
-            sender.setImage(UIImage(named: "Images/Icons/colorize.png"), for: .normal)
         }
         
         // MARK: Change image for each piece

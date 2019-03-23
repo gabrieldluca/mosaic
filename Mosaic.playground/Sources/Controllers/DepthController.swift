@@ -230,6 +230,7 @@ public class DepthController: UIViewController, LevelDelegate {
                 }
             }
         }
+        
         if self.didFitOnePiece == false && piece.currentSize == 1 {
             self.view.bringSubviewToFront(piece)
         }
@@ -282,12 +283,10 @@ public class DepthController: UIViewController, LevelDelegate {
         if sender.tag == 0 {
             imagesToColor = self.coloredImages
             sender.tag = 1
-            sender.setImage(UIImage(named: "Images/Icons/colorize-remove.png"), for: .normal)
             self.isColorizeEnabled = true
         } else {
             imagesToColor = self.images
             sender.tag = 0
-            sender.setImage(UIImage(named: "Images/Icons/colorize.png"), for: .normal)
             self.isColorizeEnabled = false
         }
         
