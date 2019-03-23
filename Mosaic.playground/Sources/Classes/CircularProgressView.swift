@@ -21,7 +21,7 @@ class CircularProgressView: UIView {
         super.init(coder: aDecoder)
     }
     
-    // MARK: - Methods
+    // MARK: - Circular Progress methods
     
     private func createArc() {
         // MARK: Removing sublayers

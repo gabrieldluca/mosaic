@@ -130,6 +130,7 @@ public class MergeController: UIViewController, LevelDelegate {
     }
     
     internal func levelTeardown() {
+        // MARK: Hiding interface buttons and adding pulse
         for button in self.interfaceButtons {
             UIView.animate(withDuration: 1.0, animations: {
                 button.alpha = 0
@@ -137,11 +138,13 @@ public class MergeController: UIViewController, LevelDelegate {
                 button.removeFromSuperview()
             })
         }
+        
         UIView.animate(withDuration: 1.0, animations: {
             self.pulsator.radius = 75
             self.addPulse(toLayer: self.objective.layer)
         })
         
+        // MARK: Adding quote
         UIView.animate(withDuration: 1.0, animations: {
             self.headerDescription.alpha = 0
         }, completion: { (success: Bool) in
@@ -159,15 +162,19 @@ public class MergeController: UIViewController, LevelDelegate {
             nextButton.alpha = 0
             self.view.addSubview(nextButton)
             
+            // MARK: Animating views
             UIView.animate(withDuration: 0.5, animations: {
+                // MARK: Showing quote
                 self.headerDescription.alpha = 1
             }, completion: { (success: Bool) in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
                     UIView.animate(withDuration: 0.5, animations: {
+                        // MARK: Showing attribution
                         attribution.alpha = 1
                     }, completion: { (success: Bool) in
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
                             UIView.animate(withDuration: 0.5, animations: {
+                                // MARK: Showing next button
                                 nextButton.alpha = 1
                             })
                         })
@@ -178,6 +185,7 @@ public class MergeController: UIViewController, LevelDelegate {
     }
     
     internal func addInterfaceButtons() {
+        // MARK: Adding view button with Long Press
         let viewButton = addToolButton(withImageNamed: "Images/Icons/view.png", andInsets: UIEdgeInsets(top: 10, left: 11.21, bottom: 10, right: 11.21), toX: 160.0)
         self.interfaceButtons.append(viewButton)
         let longPressRecognizer = UILongPressGestureRecognizer()
@@ -186,6 +194,7 @@ public class MergeController: UIViewController, LevelDelegate {
         viewButton.addGestureRecognizer(longPressRecognizer)
         self.view.addSubview(viewButton)
         
+        // MARK: Adding other buttons with Tap
         let colorizeButton = addToolButton(withImageNamed: "Images/Icons/colorize.png", andInsets: UIEdgeInsets(top: 12, left: 13, bottom: 12, right: 13), toX: 220.0)
         colorizeButton.addTarget(self, action: #selector(self.didPressColorize(_:)), for: .touchUpInside)
         self.interfaceButtons.append(colorizeButton)
@@ -206,6 +215,8 @@ public class MergeController: UIViewController, LevelDelegate {
         self.updateProgress(withValue: (100.0/Double(self.images.count))/100.0)
     }
     
+    // MARK: - Animation methods
+    
     private func addPulse(toLayer: CALayer) {
         toLayer.superlayer?.insertSublayer(self.pulsator, below: toLayer)
         self.pulsator.position = toLayer.position
@@ -214,7 +225,7 @@ public class MergeController: UIViewController, LevelDelegate {
         self.pulsator.start()
     }
     
-    // MARK: - Button interaction methods
+    // MARK: - Gesture recognizers methods
     
     @objc private func didPressView(_ gesture: UILongPressGestureRecognizer) {
         if gesture.state == UIGestureRecognizer.State.began {
@@ -237,9 +248,12 @@ public class MergeController: UIViewController, LevelDelegate {
         }
     }
     
+    // MARK: - Button interaction methods
+    
     @objc private func didPressColorize(_ sender: UIButton) {
         sender.isUserInteractionEnabled = false
         
+        // MARK: Get images for the respective size
         let imagesToColor:[UIImage?]
         if sender.tag == 0 {
             imagesToColor = self.coloredImages
@@ -251,6 +265,7 @@ public class MergeController: UIViewController, LevelDelegate {
             sender.setImage(UIImage(named: "Images/Icons/colorize.png"), for: .normal)
         }
         
+        // MARK: Change image for each piece
         self.switchPlayer.play()
         for piece in zip(self.levelPieces, imagesToColor) {
             UIView.animate(withDuration: 0.5, animations: {
@@ -268,16 +283,17 @@ public class MergeController: UIViewController, LevelDelegate {
     @objc private func didPressRotate(_ sender: UIButton) {
         sender.isUserInteractionEnabled = false
         self.rotatePlayer.play()
+        
         for piece in self.levelPieces {
-            
+            // MARK: Determine next angle
             let nextAngle:Int
             if piece.currentAngle == 3 {
                 nextAngle = 0
             } else {
                 nextAngle = piece.currentAngle + 1
-                
             }
             
+            // MARK: Rotate pieces with the respective angle
             UIView.animate(withDuration: 0.25, animations: {
                 if piece.isUserInteractionEnabled {
                     piece.transform = CGAffineTransform(rotationAngle: CGFloat(angleForNumber[nextAngle]!))
@@ -294,6 +310,7 @@ public class MergeController: UIViewController, LevelDelegate {
         self.scalePlayer.play()
         
         for piece in self.levelPieces {
+            // MARK: Determine next size
             let nextSize:Int
             if piece.currentSize == 1 {
                 nextSize = 0
@@ -303,6 +320,7 @@ public class MergeController: UIViewController, LevelDelegate {
             
             UIView.animate(withDuration: 0.25, animations: {
                 if piece.isUserInteractionEnabled {
+                    // MARK: Scale pieces according to the next size
                     if piece.currentSize == 0 {
                         piece.frame = CGRect(x: piece.frame.minX, y: piece.frame.minY, width: piece.frame.width/2.127, height: piece.frame.height/2.12855)
                     } else {

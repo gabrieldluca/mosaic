@@ -4,16 +4,17 @@ import SceneKit
 
 public class IntroController: UIViewController {
     
-    // MARK: - Variables
+    // MARK: - Scene properties
     
     private let scene:SCNScene = SCNScene()
     private let sceneView:SCNView = SCNView()
     private let pulsator:Pulsator = Pulsator()
-    private var introductionViews:[UIView] = []
-    private var currentStoryline:UILabel = UILabel()
-    public var backgroundPlayer:AVAudioPlayer?
     
-    // MARK: - Assets
+    // MARK: - Intro-specific properties
+    
+    private var introductionViews:[UIView] = []
+    
+    // MARK: - Image Assets
     
     private let images:[UIImage?] = [
         UIImage(named: "Images/Pieces/Intro/piece-0.png"),
@@ -28,7 +29,7 @@ public class IntroController: UIViewController {
         CGRect(x: 450, y: 350, width: 48.87, height: 55)
     ]
     
-    // MARK: - ViewController lifecycle methods
+    // MARK: - ViewController Lifecycle methods
     
     override public func viewDidLoad() {        
         sceneView.scene = self.scene
@@ -36,7 +37,14 @@ public class IntroController: UIViewController {
         
         // MARK: Configuring scene
         setupScene(self.scene, withView: self.sceneView)
-        
+        self.introSetup()
+    
+        super.viewDidLoad()
+    }
+    
+    // MARK: - Intro methods
+    
+    private func introSetup() {
         // MARK: Loading image assets
         for imageInfo in zip(self.images, self.frames) {
             let view = UIImageView(image: imageInfo.0)
@@ -53,7 +61,25 @@ public class IntroController: UIViewController {
         self.introductionViews.append(creditsButton)
         
         self.setStartButton()
-        super.viewDidLoad()
+    }
+    
+    @objc private func introTeardown(_ sender: UIButton) {
+        // MARK: Stopping animations
+        self.pulsator.stop()
+        for view in self.introductionViews {
+            UIView.animate(withDuration: 1.5, animations: {
+                view.alpha = 0
+            }, completion: { (sucess: Bool) in
+                view.removeFromSuperview()
+            })
+        }
+        
+        // MARK: Presenting First level
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.75, execute: {
+            let viewController = MergeController()
+            viewController.preferredContentSize = CGSize(width:550, height:450)
+            self.present(viewController, animated: true)
+        })
     }
     
     // MARK: - Animation methods
@@ -94,24 +120,5 @@ public class IntroController: UIViewController {
         
         self.introductionViews.append(button)
         self.view.addSubview(button)
-    }
-    
-    // MARK: - Intro setup methods
-    
-    @objc private func introTeardown(_ sender: UIButton) {
-        self.pulsator.stop()
-        for view in self.introductionViews {
-            UIView.animate(withDuration: 1.5, animations: {
-                view.alpha = 0
-            }, completion: { (sucess: Bool) in
-                view.removeFromSuperview()
-            })
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.75, execute: {
-            let viewController = MergeController()
-            viewController.preferredContentSize = CGSize(width:550, height:450)
-            self.present(viewController, animated: true)
-        })
     }
 }

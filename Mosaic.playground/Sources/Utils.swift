@@ -2,22 +2,7 @@ import AVFoundation
 import SceneKit
 import UIKit
 
-public func createReference(withAuthor: String, relativeTo: UILabel) -> UILabel {
-    let quote = UILabel(frame: CGRect(x: relativeTo.frame.minX, y: relativeTo.frame.midY - 15, width: relativeTo.frame.width, height: relativeTo.frame.height))
-    quote.text = withAuthor
-    quote.font = UIFont(name: "HelveticaNeue-Bold", size: 14)
-    quote.textColor = UIColor.white
-    quote.textAlignment = .center
-    quote.alpha = 0
-    
-    if withAuthor == "— Ellen Langer —" {
-        quote.transform = CGAffineTransform.init(translationX: 0, y: 9.0)
-    }
-    
-    return quote
-}
-
-// MARK: Angle conversion
+// MARK: Angle Conversion helper
 
 public var angleForNumber = [
     0:Double.pi/2,
@@ -26,8 +11,13 @@ public var angleForNumber = [
     3:Double.pi*2.0
 ]
 
-// MARK: - Level setup Helpers
+// MARK: - Level Setup helpers
 
+/**
+ Add a simple header with a dark translucid background
+ 
+ - Parameter toView: The view to add the header to.
+ */
 public func addHeader(toView: UIView) {
     let header = UIView()
     header.frame = CGRect(x: 125, y: 25, width: 300, height: 125)
@@ -36,6 +26,14 @@ public func addHeader(toView: UIView) {
     toView.addSubview(header)
 }
 
+/**
+ Creates a description label aligned to the top-part of a view.
+ 
+ - Parameter toView: The view to add the description to.
+ - Parameter withText: A string representing the text of the desired description.
+
+ - returns: UILabel
+ */
 public func addDescription(toView: UIView, withText: String) -> UILabel {
     let text = UILabel()
     text.text = withText
@@ -51,6 +49,12 @@ public func addDescription(toView: UIView, withText: String) -> UILabel {
     return text
 }
 
+/**
+ Creates translucid circle with a number representing the current level.
+
+ - Parameter toView: The view to add the level number to.
+ - Parameter withText: A string representing the text of the desired level number.
+ */
 public func addLevelNumber(toView: UIView, withText: String) {
     let number = UILabel()
     number.text = withText
@@ -66,8 +70,42 @@ public func addLevelNumber(toView: UIView, withText: String) {
     toView.addSubview(number)
 }
 
-// MARK: - Interface button methods
+// MARK: - Level Teardown helper
 
+/**
+ Creates a label with an author name attribution. The label is created with zero alpha for animation purposes.
+ 
+ - Parameter withAuthor: A string representing the author name.
+ - Parameter toView: The view to add the attribution below.
+ 
+ - returns: UILabel
+ */
+public func createReference(withAuthor: String, relativeTo: UILabel) -> UILabel {
+    let quote = UILabel(frame: CGRect(x: relativeTo.frame.minX, y: relativeTo.frame.midY - 15, width: relativeTo.frame.width, height: relativeTo.frame.height))
+    quote.text = withAuthor
+    quote.font = UIFont(name: "HelveticaNeue-Bold", size: 14)
+    quote.textColor = UIColor.white
+    quote.textAlignment = .center
+    quote.alpha = 0
+    
+    if withAuthor == "— Ellen Langer —" {
+        quote.transform = CGAffineTransform.init(translationX: 0, y: 9.0)
+    }
+    
+    return quote
+}
+
+// MARK: - Interface Buttons helpers
+
+/**
+ Creates an interactive button.
+ 
+ - Parameter withImageNamed: A string containing the path of the image.
+ - Parameter andInsets: Insets properties to keep the image proportion.
+ - Parameter toX: The desired position in the X coordinate.
+ 
+ - returns: UIButton
+ */
 public func addToolButton(withImageNamed: String, andInsets: UIEdgeInsets, toX: Double) -> UIButton {
     let toolButton = UIButton(frame: CGRect(x: toX, y: 387.5, width: 50, height: 50))
     toolButton.setImage(UIImage(named: withImageNamed), for: .normal)
@@ -82,19 +120,15 @@ public func addToolButton(withImageNamed: String, andInsets: UIEdgeInsets, toX: 
     return toolButton
 }
 
+// MARK: - SceneKit helpers
+
 /**
- Creates a quote-formatted label with zero alpha for Animation purposes.
+ Add a particle emitter node.
  
- - Parameter text: A string representing the text of the desired quote.
- - Parameter toView: The view to add the quote to.
- - Parameter color: The color of the quote.
- - Parameter frame: A frame containing the coordinates and the dimensions for the quote.
- 
- - returns: UILabel
+ - Parameter toScene: The scene to add the particle emitter to.
+ - Parameter withParticle: The desired particle.
+ - Parameter inFrontOf: The node to position the particles in front of.
  */
-
-// MARK: - SceneKit Helpers
-
 public func addEmmiterNode(toScene: SCNScene, withParticle: SCNParticleSystem?, inFrontOf: SCNNode) {
     let particleEmitter = SCNNode()
     if let particles = withParticle {
@@ -106,6 +140,12 @@ public func addEmmiterNode(toScene: SCNScene, withParticle: SCNParticleSystem?, 
     updatePositionAndOrientationOf(particleEmitter, withPosition: position, relativeTo: inFrontOf)
 }
 
+/**
+ Setup a non-interactive scene with stars in the background.
+ 
+ - Parameter scene: The scene to place the camera, lights and particles to.
+ - Parameter withView: The view to add configurations to.
+ */
 public func setupScene(_ scene: SCNScene, withView: SCNView) {
     withView.frame = CGRect(x:0, y:0, width:550, height:450)
     withView.allowsCameraControl = false
@@ -119,6 +159,13 @@ public func setupScene(_ scene: SCNScene, withView: SCNView) {
     addEmmiterNode(toScene: scene, withParticle: stars, inFrontOf: camera)
 }
 
+/**
+ Places a node in a specific position in front of another node.
+ 
+ - Parameter node: The node you want to position.
+ - Parameter position: The desired position coordinates (x, y, z).
+ - Parameter referenceNode: The other node you want to use as a reference.
+ */
 public func updatePositionAndOrientationOf(_ node: SCNNode, withPosition position: SCNVector3, relativeTo referenceNode: SCNNode) {
     let referenceNodeTransform = matrix_float4x4(referenceNode.transform)
     

@@ -88,7 +88,11 @@ public class EndingController: UIViewController {
             
             subLabel.numberOfLines = 0
             subLabel.textAlignment = .center
-            subLabel.center.y = subtitle.1.maxY + 30.0
+            if subtitle.0 == "Cube inside a cube" {
+                subLabel.center.y = subtitle.1.maxY + 40.0
+            } else {
+                subLabel.center.y = subtitle.1.maxY + 30.0
+            }
             subLabel.center.x = subtitle.1.midX
             
             subLabel.textColor = UIColor.white

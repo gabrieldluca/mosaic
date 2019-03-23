@@ -82,6 +82,7 @@ class MovableView: UIImageView {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.isMoving = false
         
+        // MARK: Calculate distance for objective
         let deltaX = self.objectiveCenter.x - self.center.x
         let deltaY = self.objectiveCenter.y - self.center.y
         
@@ -89,6 +90,7 @@ class MovableView: UIImageView {
             self.objectiveSize = self.currentSize
         }
         
+        // MARK: Check distance against the 20 points margin
         if abs(deltaX) <= 20 && abs(deltaY) <= 20 && self.currentAngle == self.objectiveAngle && self.currentSize == self.objectiveSize {
             UIView.animate(withDuration: 0.25, animations: {
                 self.center = self.objectiveCenter
@@ -97,6 +99,7 @@ class MovableView: UIImageView {
             self.isUserInteractionEnabled = false
             self.levelDelegate?.didFit(piece: self)
         } else {
+            // MARK: Return to the initial position
             UIView.animate(withDuration: 0.25, animations: {
                 self.center = self.origin
             })

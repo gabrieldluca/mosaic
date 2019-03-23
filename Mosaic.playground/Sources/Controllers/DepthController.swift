@@ -131,6 +131,7 @@ public class DepthController: UIViewController, LevelDelegate {
     }
     
     internal func levelTeardown() {
+        // MARK: Hiding interface buttons and adding pulse
         for button in self.interfaceButtons {
             UIView.animate(withDuration: 1.0, animations: {
                 button.alpha = 0
@@ -138,11 +139,13 @@ public class DepthController: UIViewController, LevelDelegate {
                 button.removeFromSuperview()
             })
         }
+        
         UIView.animate(withDuration: 1.0, animations: {
             self.pulsator.radius = 75
             self.addPulse(toLayer: self.objective.layer)
         })
         
+        // MARK: Adding quote
         UIView.animate(withDuration: 1.0, animations: {
             self.headerDescription.alpha = 0
         }, completion: { (success: Bool) in
@@ -160,15 +163,19 @@ public class DepthController: UIViewController, LevelDelegate {
             nextButton.alpha = 0
             self.view.addSubview(nextButton)
             
+            // MARK: Animating views
             UIView.animate(withDuration: 0.5, animations: {
+                // MARK: Showing quote
                 self.headerDescription.alpha = 1
             }, completion: { (success: Bool) in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
                     UIView.animate(withDuration: 0.5, animations: {
+                        // MARK: Showing attribution
                         attribution.alpha = 1
                     }, completion: { (success: Bool) in
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
                             UIView.animate(withDuration: 0.5, animations: {
+                                // MARK: Showing next button
                                 nextButton.alpha = 1
                             })
                         })
@@ -179,6 +186,7 @@ public class DepthController: UIViewController, LevelDelegate {
     }
     
     internal func addInterfaceButtons() {
+        // MARK: Adding view button with Long Press
         let viewButton = addToolButton(withImageNamed: "Images/Icons/view.png", andInsets: UIEdgeInsets(top: 10, left: 11.21, bottom: 10, right: 11.21), toX: 160.0)
         self.interfaceButtons.append(viewButton)
         let longPressRecognizer = UILongPressGestureRecognizer()
@@ -187,6 +195,7 @@ public class DepthController: UIViewController, LevelDelegate {
         viewButton.addGestureRecognizer(longPressRecognizer)
         self.view.addSubview(viewButton)
         
+        // MARK: Adding other buttons with Tap
         let colorizeButton = addToolButton(withImageNamed: "Images/Icons/colorize.png", andInsets: UIEdgeInsets(top: 10, left: 11.21, bottom: 10, right: 11.21), toX: 220.0)
         colorizeButton.addTarget(self, action: #selector(self.didPressColorize(_:)), for: .touchUpInside)
         self.interfaceButtons.append(colorizeButton)
@@ -230,6 +239,8 @@ public class DepthController: UIViewController, LevelDelegate {
         self.updateProgress(withValue: 0.25)
     }
     
+    // MARK: Animation methods
+    
     private func addPulse(toLayer: CALayer) {
         toLayer.superlayer?.insertSublayer(self.pulsator, below: toLayer)
         self.pulsator.position = toLayer.position
@@ -238,7 +249,7 @@ public class DepthController: UIViewController, LevelDelegate {
         self.pulsator.start()
     }
     
-    // MARK: - Button interaction methods
+    // MARK: - Gesture recognizers methods
     
     @objc private func didPressView(_ gesture: UILongPressGestureRecognizer) {
         if gesture.state == UIGestureRecognizer.State.began {
@@ -260,6 +271,8 @@ public class DepthController: UIViewController, LevelDelegate {
             })
         }
     }
+    
+    // MARK: - Button interaction methods
     
     @objc private func didPressColorize(_ sender: UIButton) {
         sender.isUserInteractionEnabled = false
@@ -396,6 +409,7 @@ public class DepthController: UIViewController, LevelDelegate {
     // MARK: - Progress update methods
     
     private func removeProgress(ofValue: Double) {
+        // MARK: Removing previous progress
         for (index, view) in self.progressViews.enumerated() {
             UIView.animate(withDuration: 0.25, animations: {
                 view.alpha = 0
@@ -404,6 +418,8 @@ public class DepthController: UIViewController, LevelDelegate {
                 self.progressViews.remove(at: index)
             })
         }
+        
+        // MARK: Adding brand-new progress
         let newProgress = self.progressPercentage - ofValue
         self.progressPercentage = 0.0
         self.updateProgress(withValue: newProgress)
@@ -414,7 +430,7 @@ public class DepthController: UIViewController, LevelDelegate {
         let degrees = 360.0 * self.progressPercentage
         let radians = degrees * Double.pi / 180.0
         
-        // MARK: Adding circular progress view
+        // MARK: Adding circular progress
         let progressView = CircularProgressView()
         progressView.endAngle = CGFloat(radians)
         progressView.frame = CGRect(x: 277.5, y: 147.5, width: 100.0, height: 100.0)

@@ -132,6 +132,7 @@ public class PerspectiveController: UIViewController, LevelDelegate {
     }
     
     internal func levelTeardown() {
+        // MARK: Hiding interface buttons and adding pulse
         for button in self.interfaceButtons {
             UIView.animate(withDuration: 1.0, animations: {
                 button.alpha = 0
@@ -139,11 +140,13 @@ public class PerspectiveController: UIViewController, LevelDelegate {
                 button.removeFromSuperview()
             })
         }
+        
         UIView.animate(withDuration: 1.0, animations: {
             self.pulsator.radius = 75
             self.addPulse(toLayer: self.objective.layer)
         })
         
+        // MARK: Adding quote
         UIView.animate(withDuration: 1.0, animations: {
             self.headerDescription.alpha = 0
         }, completion: { (success: Bool) in
@@ -161,15 +164,19 @@ public class PerspectiveController: UIViewController, LevelDelegate {
             nextButton.alpha = 0
             self.view.addSubview(nextButton)
             
+            // MARK: Animating views
             UIView.animate(withDuration: 0.5, animations: {
+                // MARK: Showing quote
                 self.headerDescription.alpha = 1
             }, completion: { (success: Bool) in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
                     UIView.animate(withDuration: 0.5, animations: {
+                        // MARK: Showing attribution
                         attribution.alpha = 1
                     }, completion: { (success: Bool) in
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
                             UIView.animate(withDuration: 0.5, animations: {
+                                // MARK: Showing next button
                                 nextButton.alpha = 1
                             })
                         })
@@ -180,6 +187,7 @@ public class PerspectiveController: UIViewController, LevelDelegate {
     }
     
     internal func addInterfaceButtons() {
+        // MARK: Adding view button with Long Press
         let viewButton = addToolButton(withImageNamed: "Images/Icons/view.png", andInsets: UIEdgeInsets(top: 10, left: 11.21, bottom: 10, right: 11.21), toX: 160.0)
         self.interfaceButtons.append(viewButton)
         let longPressRecognizer = UILongPressGestureRecognizer()
@@ -188,6 +196,7 @@ public class PerspectiveController: UIViewController, LevelDelegate {
         viewButton.addGestureRecognizer(longPressRecognizer)
         self.view.addSubview(viewButton)
         
+        // MARK: Adding other buttons with Tap
         let colorizeButton = addToolButton(withImageNamed: "Images/Icons/colorize.png", andInsets: UIEdgeInsets(top: 10, left: 11.21, bottom: 10, right: 11.21), toX: 220.0)
         colorizeButton.addTarget(self, action: #selector(self.didPressColorize(_:)), for: .touchUpInside)
         colorizeButton.tag = 1
@@ -230,6 +239,8 @@ public class PerspectiveController: UIViewController, LevelDelegate {
         self.updateProgress(withValue: 0.25)
     }
     
+    // MARK: Animation methods
+    
     private func addPulse(toLayer: CALayer) {
         toLayer.superlayer?.insertSublayer(self.pulsator, below: toLayer)
         self.pulsator.position = toLayer.position
@@ -238,7 +249,7 @@ public class PerspectiveController: UIViewController, LevelDelegate {
         self.pulsator.start()
     }
     
-    // MARK: - Button interaction methods
+    // MARK: - Gesture recognizers methods
     
     @objc private func didPressView(_ gesture: UILongPressGestureRecognizer) {
         if gesture.state == UIGestureRecognizer.State.began {
@@ -261,9 +272,12 @@ public class PerspectiveController: UIViewController, LevelDelegate {
         }
     }
     
+    // MARK: - Button interaction methods
+    
     @objc private func didPressColorize(_ sender: UIButton) {
         sender.isUserInteractionEnabled = false
         
+        // MARK: Get images for the respective size
         let imagesToColor:[UIImage?]
         if sender.tag == 0 {
             imagesToColor = self.coloredImages
@@ -277,12 +291,14 @@ public class PerspectiveController: UIViewController, LevelDelegate {
             self.isColorizeEnabled = false
         }
         
+        // MARK: Updates progress accordingly
         if sender.tag == 1 {
             self.removeProgress(ofValue: 0.5)
         } else {
             self.updateProgress(withValue: 0.5)
         }
         
+        // MARK: Change image for each piece
         self.switchPlayer.play()
         for piece in self.levelPieces {
             UIView.animate(withDuration: 0.5, animations: {
@@ -302,6 +318,7 @@ public class PerspectiveController: UIViewController, LevelDelegate {
         self.rotatePlayer.play()
         for piece in self.levelPieces {
             
+            // MARK: Determine next angle
             let nextAngle:Int
             if piece.currentAngle == 3 {
                 nextAngle = 0
@@ -309,6 +326,7 @@ public class PerspectiveController: UIViewController, LevelDelegate {
                 nextAngle = piece.currentAngle + 1
             }
             
+            // MARK: Rotate pieces with the respective angle
             UIView.animate(withDuration: 0.25, animations: {
                 if piece.isUserInteractionEnabled {
                     piece.transform = CGAffineTransform(rotationAngle: CGFloat(angleForNumber[nextAngle]!))
@@ -325,6 +343,7 @@ public class PerspectiveController: UIViewController, LevelDelegate {
         self.scalePlayer.play()
         
         for piece in self.levelPieces {
+            // MARK: Determine next size
             let nextSize:Int
             if piece.currentSize == 1 {
                 nextSize = 0
@@ -334,30 +353,24 @@ public class PerspectiveController: UIViewController, LevelDelegate {
             
             UIView.animate(withDuration: 0.25, animations: {
                 if piece.isUserInteractionEnabled {
+                    // MARK: Scale pieces according to the next size
                     if piece.currentSize == 0 {
                         piece.objectiveCenter.y -= 2.5
                         piece.frame = CGRect(x: piece.frame.minX, y: piece.frame.minY, width: piece.frame.width/2.127, height: piece.frame.height/2.12855)
-                        if self.isColorizeEnabled {
-                            UIView.animate(withDuration: 0.5, animations: {
-                                piece.alpha = 0
-                            })
-                            piece.image = self.coloredImages[nextSize]
-                            UIView.animate(withDuration: 0.5, animations: {
-                                piece.alpha = 1
-                            })
-                        }
                     } else {
                         piece.objectiveCenter.y += 2.5
                         piece.frame = CGRect(x: piece.frame.minX, y: piece.frame.minY, width: piece.frame.width*2.127, height: piece.frame.height*2.12855)
-                        if self.isColorizeEnabled {
-                            UIView.animate(withDuration: 0.5, animations: {
-                                piece.alpha = 0
-                            })
-                            piece.image = self.coloredImages[nextSize]
-                            UIView.animate(withDuration: 0.5, animations: {
-                                piece.alpha = 1
-                            })
-                        }
+                    }
+                    
+                    // MARK: Colorize images if needed
+                    if self.isColorizeEnabled {
+                        UIView.animate(withDuration: 0.5, animations: {
+                            piece.alpha = 0
+                        })
+                        piece.image = self.coloredImages[nextSize]
+                        UIView.animate(withDuration: 0.5, animations: {
+                            piece.alpha = 1
+                        })
                     }
                 }
             }, completion: { (success: Bool) in
@@ -396,6 +409,7 @@ public class PerspectiveController: UIViewController, LevelDelegate {
     // MARK: - Progress update methods
     
     private func removeProgress(ofValue: Double) {
+        // MARK: Removing previous progress
         for (index, view) in self.progressViews.enumerated() {
             UIView.animate(withDuration: 0.25, animations: {
                 view.alpha = 0
@@ -405,6 +419,7 @@ public class PerspectiveController: UIViewController, LevelDelegate {
             })
         }
         
+        // MARK: Adding brand-new progress
         let newProgress = self.progressPercentage - ofValue
         self.progressPercentage = 0.0
         self.updateProgress(withValue: newProgress)

@@ -2,14 +2,22 @@
  # Mosaic
  ![Playground Icon](Images/logo.png width="275" height="249")
  
- Mosaic is an interactive Swift playground that portrays the relationship between isometric shapes, visual perception and optical illusions. You may build and interact with it in the latest release of XCode.
+ ### 🤯 About
+
+ Mosaic is an interactive puzzle game that explores isometric shapes, design principles and visual perception.
  
- The list of modules and frameworks I've used include:
+ * Callout(Purpose):
+ The purpose of this playground is teaching the properties of isometric shapes in a mind-blowing way, following the *"Write code, blow minds"* motto.
  
- * **UIKit:** Lorem Ipsum dolor sit amet.
- * **SpriteKit:** Lorem Ipsum dolor sit amet.
- * **SceneKit:** Lorem Ipsum dolor sit amet.
- * **AVFoundation:** Lorem Ipsum dolor sit amet.
+ ### 🧩 Gameplay
+
+ In each level, the player faces a challenge, and must interact different pieces to complete the objective perfectly. Actions include moving, rotating, scaling and colorizing.
+ 
+ ### 💻 Requirements
+ 
+ You may build and interact with Mosaic in the latest release of XCode (10.1).
+ 
+ ---
  */
 import PlaygroundSupport
 import AVFoundation
