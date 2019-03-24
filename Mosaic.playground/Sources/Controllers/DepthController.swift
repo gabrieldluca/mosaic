@@ -377,11 +377,15 @@ public class DepthController: UIViewController, LevelDelegate {
                 if self.didFitOnePiece == true {
                     if let fitted = self.fittedPiece {
                         if piece != fitted {
-                            piece.currentSize = nextSize
+                            if piece.isUserInteractionEnabled == true {
+                                piece.currentSize = nextSize
+                            }
                         }
                     }
                 } else {
-                    piece.currentSize = nextSize
+                    if piece.isUserInteractionEnabled == true {
+                        piece.currentSize = nextSize
+                    }
                     
                     // MARK: Change objective angle accordingly
                     if piece.objectiveAngle == 3 {
