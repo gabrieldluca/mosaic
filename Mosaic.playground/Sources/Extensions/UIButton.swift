@@ -1,4 +1,5 @@
 import UIKit
+import CoreGraphics
 
 extension UIButton {
     func setBackgroundColor(color: UIColor, forState: UIControl.State) {

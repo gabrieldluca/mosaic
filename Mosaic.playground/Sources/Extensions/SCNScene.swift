@@ -2,9 +2,7 @@ import SceneKit
 
 extension SCNScene {
     /**
-     Places a camera in the respective scene.
-     
-     - Parameter toScene: The desired scene object to place the camera to.
+     Places a camera in the scene, returning the generated camera node.
      
      - returns: SCNNode
      */
@@ -16,9 +14,7 @@ extension SCNScene {
     }
     
     /**
-     Add an omni light to the respective scene.
-     
-     - Parameter toScene: The desired scene object to add the light to.
+     Add an omni light in the scene.
      */
     func addLight() {
         let lightNode = SCNNode()
@@ -28,9 +24,7 @@ extension SCNScene {
     }
     
     /**
-     Add a dark-gray ambient light to the respective scene.
-     
-     - Parameter toScene: The desired scene object to add the ambient light to.
+     Add a dark-gray ambient light in the scene.
      */
     func addAmbientLight() {
         let ambientLightNode = SCNNode()

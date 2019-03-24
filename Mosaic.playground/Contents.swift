@@ -11,7 +11,7 @@
  
  ### 🧩 Gameplay
 
- In each level, the player faces a challenge, and must interact different pieces to complete the objective perfectly. Actions include moving, rotating, scaling and colorizing.
+ In each level, you will face a challenge, and must interact and fit different pieces to complete the objective. Actions include moving, rotating, scaling and colorizing.
  
  ### 💻 Requirements
  
@@ -28,7 +28,7 @@ do {
      "Hybrid Tech Theme" by Purple Planet
      
      Source: https://www.purple-planet.com/atmospheric
-     Music: https://www.purple-planet.com (https://www.purple-planet.com/using-our-free-music)
+     Music: https://www.purple-planet.com (CC-BY 3.0: https://www.purple-planet.com/using-our-free-music)
      */
     let audioPath = Bundle.main.path(forResource: "Sound/hybrid-tech-theme", ofType: "mp3")
     try player = AVAudioPlayer(contentsOf: NSURL(fileURLWithPath: audioPath!) as URL)
@@ -38,7 +38,7 @@ do {
 
 player.numberOfLoops = -1
 player.prepareToPlay()
-player.play()
+//player.play()
 
 let viewController = IntroController()
 viewController.preferredContentSize = CGSize(width: 550, height: 450)

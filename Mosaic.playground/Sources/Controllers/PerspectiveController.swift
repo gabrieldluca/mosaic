@@ -59,7 +59,7 @@ public class PerspectiveController: UIViewController, LevelDelegate {
             /*
              "Light Switch" by GOSFX; "Whip 01" by erkanozans; "Dramatic Camera Zoom" by sanaku; "whoosh.wav" by LloydEvans09.
              
-             Source(s): https://freesound.org/people/GOSFX/sounds/324334/ (CC BY 3.0), https://freesound.org/people/erkanozan/sounds/51755/ (CC0 1.0) & https://freesound.org/people/sanaku/sounds/371882/ (CC0 1.0)
+             Source(s): https://freesound.org/people/GOSFX/sounds/324334/ (CC BY 3.0), https://freesound.org/people/erkanozan/sounds/51755/ (CC0 1.0), https://freesound.org/people/sanaku/sounds/371882/ (CC0 1.0) & https://freesound.org/people/LloydEvans09/sounds/332003/ (CC0 1.0)
              */
             let rotateAudioPath = Bundle.main.path(forResource: "Sound/whip", ofType: "wav")
             let scaleAudioPath = Bundle.main.path(forResource: "Sound/scale", ofType: "wav")

@@ -56,6 +56,8 @@ public class IntroController: UIViewController {
         // MARK: Add acknowledgments button
         let creditsButton = UIButton(frame: CGRect(x: 255, y: 350, width: 50, height: 28.01))
         creditsButton.setBackgroundImage(UIImage(named: "Images/Icons/about.png"), for: .normal)
+        creditsButton.addTarget(self, action: #selector(self.didPressCredits(_:)), for: .touchUpInside)
+        
         self.view.addSubview(creditsButton)
         self.addPulse(toLayer: creditsButton.layer)
         self.introductionViews.append(creditsButton)
@@ -103,7 +105,13 @@ public class IntroController: UIViewController {
         }
     }
     
-    // MARK: - Start button
+    // MARK: - Button methods
+    
+    @objc private func didPressCredits(_ sender: UIButton) {
+        let viewController = CreditsController()
+        viewController.preferredContentSize = CGSize(width:550, height:450)
+        self.present(viewController, animated: true)
+    }
     
     private func setStartButton() {
         let button = UIButton(frame: CGRect(x: 190, y: 175, width: 175, height: 65))

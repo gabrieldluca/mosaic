@@ -136,6 +136,8 @@ public func addEmmiterNode(toScene: SCNScene, withParticle: SCNParticleSystem?, 
     }
     
     toScene.rootNode.addChildNode(particleEmitter)
+    
+    // MARK: Adding the emitter node 3 meters in front of other node
     let position = SCNVector3(x: 0, y: 0, z: 3)
     updatePositionAndOrientationOf(particleEmitter, withPosition: position, relativeTo: inFrontOf)
 }
@@ -151,10 +153,12 @@ public func setupScene(_ scene: SCNScene, withView: SCNView) {
     withView.allowsCameraControl = false
     withView.backgroundColor = UIColor(red:0.11, green:0.11, blue:0.14, alpha:1.0)
     
+    // MARK: Placing the camera and adding lights
     let camera = scene.placeCamera()
     scene.addLight()
     scene.addAmbientLight()
     
+    // MARK: Adding a star emitter node
     let stars = SCNParticleSystem(named: "Particle Systems/starry-night.scnp", inDirectory: nil)
     addEmmiterNode(toScene: scene, withParticle: stars, inFrontOf: camera)
 }
@@ -167,14 +171,17 @@ public func setupScene(_ scene: SCNScene, withView: SCNView) {
  - Parameter referenceNode: The other node you want to use as a reference.
  */
 public func updatePositionAndOrientationOf(_ node: SCNNode, withPosition position: SCNVector3, relativeTo referenceNode: SCNNode) {
-    let referenceNodeTransform = matrix_float4x4(referenceNode.transform)
     
-    // Setup a translation matrix with the desired position
+    // MARK: Setup a translation matrix with the desired position
     var translationMatrix = matrix_identity_float4x4
     translationMatrix.columns.3.x = position.x
     translationMatrix.columns.3.y = position.y
     translationMatrix.columns.3.z = position.z
 
+    // MARK: Multiplying the reference node by the translation matrix
+    let referenceNodeTransform = matrix_float4x4(referenceNode.transform)
     let updatedTransform = matrix_multiply(referenceNodeTransform, translationMatrix)
+    
+    // MARK: Updating node
     node.transform = SCNMatrix4(updatedTransform)
 }
